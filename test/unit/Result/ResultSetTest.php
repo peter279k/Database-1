@@ -87,10 +87,18 @@ class ResultSetTest extends TestCase {
 		}
 	}
 
+	public function testCountAfterFetchAll() {
+		$resultSet = new ResultSet($this->getStatementMock());
+		$allData = $resultSet->fetchAll();
+		self::assertCount(count($allData), $resultSet);
+	}
+
 	private function getStatementMock():PDOStatement {
 		$statement = $this->createMock(PDOStatement::class);
 		$statement->method("fetch")
 			->will(self::returnCallback([$this, "getNextFakeData"]));
+		$statement->method("fetchAll")
+			->will(self::returnCallback([$this, "getAllFakeData"]));
 
 		return $statement;
 	}
@@ -103,6 +111,9 @@ class ResultSetTest extends TestCase {
 		$this->fake_data_index++;
 
 		return $data;
+	}
 
+	public function getAllFakeData() {
+		return self::FAKE_DATA;
 	}
 }
