@@ -129,13 +129,17 @@ class Settings implements SettingsInterface {
 			$connectionString .= $this->getSchema();
 			break;
 
+		case self::DRIVER_POSTGRES:
+			$connectionString .= "dbname=" . $this->getSchema();
+			$connectionString .= ";host=" . $this->getHost();
+			break;
+
 		default:
 			$connectionString .= "host=" . $this->getHost();
 			$connectionString .= ";dbname=" . $this->getSchema();
 			$connectionString .= ";charset=" . self::CHARSET;
 			break;
 		}
-
 		return $connectionString;
 	}
 
