@@ -1,8 +1,9 @@
 <?php
-namespace Gt\Database\Query;
+namespace Gt\Database\Test\Query;
 
 use Gt\Database\Connection\Settings;
 use Gt\Database\Connection\Driver;
+use Gt\Database\Query\QueryCollectionFactory;
 use Gt\Database\Test\Helper\Helper;
 use PHPUnit\Framework\TestCase;
 
