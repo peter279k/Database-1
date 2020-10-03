@@ -92,4 +92,30 @@ class QueryFactoryTest extends TestCase {
 			$queryFileList[$queryName] = $query->getFilePath();
 		}
 	}
+
+	public function testSelectsCorrectFilePhp() {
+		$queryCollectionData = Helper::queryCollectionPathExistsProvider();
+		$queryCollectionPath = $queryCollectionData[0][1];
+
+		$queryFactory = new QueryFactory(
+			$queryCollectionPath,
+			new Driver(new DefaultSettings())
+		);
+
+		$queryNames = [
+			uniqid("q1-"),
+			uniqid("q2-"),
+			uniqid("q3-"),
+			uniqid("q4-")
+		];
+		$queryFileList = [];
+		foreach($queryNames as $queryName) {
+			$queryPath = $queryCollectionPath . "/$queryName.php";
+			touch($queryPath);
+
+			$query = $queryFactory->create($queryName);
+			static::assertNotContains($query->getFilePath(), $queryFileList);
+			$queryFileList[$queryName] = $query->getFilePath();
+		}
+	}
 }

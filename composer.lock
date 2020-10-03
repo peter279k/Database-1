@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "12ed772f558c06856593c6aef63dd3ff",
+    "content-hash": "fa557e5dad5141e46684b3c8d7735f5e",
     "packages": [
         {
             "name": "magicalex/write-ini-file",
@@ -95,6 +95,36 @@
             ],
             "description": "Manage configuration with ini files and environment variables.",
             "time": "2019-06-17T08:16:58+00:00"
+        },
+        {
+            "name": "phpgt/sqlbuilder",
+            "version": "v0.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/PhpGt/SqlBuilder.git",
+                "reference": "8779480e8b4835a79140d8ba35e180e00573ca81"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/PhpGt/SqlBuilder/zipball/8779480e8b4835a79140d8ba35e180e00573ca81",
+                "reference": "8779480e8b4835a79140d8ba35e180e00573ca81",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7.4"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "9.*"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Gt\\SqlBuilder\\": "./src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "description": "Object oriented representation of SQL queries.",
+            "time": "2020-09-22T20:19:50+00:00"
         }
     ],
     "packages-dev": [

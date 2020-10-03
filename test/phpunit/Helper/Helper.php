@@ -38,6 +38,13 @@ class Helper {
 		@rmdir($dir);
 	}
 
+	public static function queryPathPhpExistsProvider() {
+		return self::queryPathProvider(true, "php");
+	}
+
+	public static function queryPathPhpNotExistsProvider() {
+		return self::queryPathProvider(false, "php");
+	}
 
 	public static function queryPathExistsProvider() {
 		return self::queryPathProvider(true);

@@ -10,8 +10,7 @@ use PHPUnit\Framework\TestCase;
 use Gt\Database\Test\Helper\Helper;
 
 class SqlQueryTest extends TestCase {
-	/** @var Driver */
-	private $driver;
+	private Driver $driver;
 
 	public function setUp():void {
 		$driver = $this->driverSingleton();
@@ -341,7 +340,7 @@ class SqlQueryTest extends TestCase {
 	}
 
 	private function driverSingleton():Driver {
-		if(is_null($this->driver)) {
+		if(!isset($this->driver)) {
 			$settings = new Settings(
 				Helper::getTmpDir(),
 				Settings::DRIVER_SQLITE,

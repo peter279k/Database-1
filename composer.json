@@ -4,9 +4,10 @@
     "type": "library",
 
     "require": {
-        "php": "^7.2",
+        "php": "^7.4",
         "ext-PDO": "*",
-        "phpgt/config": "*"
+        "phpgt/config": "^1.0.0",
+        "phpgt/sqlbuilder": "^v0.1.0"
     },
 
     "require-dev": {
