@@ -88,6 +88,53 @@ PHP;
 		);
 	}
 
+	/**
+	 * @dataProvider \Gt\Database\Test\Helper\Helper::queryCollectionPathExistsProvider
+	 * @runInSeparateProcess
+	 */
+	public function testNamespaceMismatch(
+		string $queryName,
+		string $queryCollectionPath
+	) {
+		$queryPath = "$queryCollectionPath/getByName.php";
+		$php = file_get_contents(__DIR__ . "/../Helper/PhpQueryExample/GetByName.php");
+		$php = str_replace(
+			"namespace App\\Database",
+			"namespace MyTestApp\\Database",
+			$php
+		);
+		file_put_contents($queryPath, $php);
+		$query = new PhpQuery($queryPath, $this->driverSingleton());
+		self::expectException(PhpQueryClassNotLoadedException::class);
+		$query->getSql(["two"]);
+	}
+
+	/**
+	 * @dataProvider \Gt\Database\Test\Helper\Helper::queryCollectionPathExistsProvider
+	 * @runInSeparateProcess
+	 */
+	public function testSetBaseNamespace(
+		string $queryName,
+		string $queryCollectionPath
+	) {
+		$queryPath = "$queryCollectionPath/getByName.php";
+		$php = file_get_contents(__DIR__ . "/../Helper/PhpQueryExample/GetByName.php");
+		$php = str_replace(
+			"namespace App\\Database",
+			"namespace MyTestApp\\Database",
+			$php
+		);
+		file_put_contents($queryPath, $php);
+		$query = new PhpQuery($queryPath, $this->driverSingleton());
+		$query->setBaseNamespace("MyTestApp");
+		$sql = $query->getSql(["two"]);
+
+		self::assertStringContainsStringIgnoreWhitespace(
+			"select id, name from test_table where name = ? limit 1",
+			$sql
+		);
+	}
+
 	private function driverSingleton():Driver {
 		if(!isset($this->driver)) {
 			$settings = new Settings(
