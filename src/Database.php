@@ -39,6 +39,12 @@ class Database {
 		$this->storeQueryCollectionFactoryFromSettings($connectionSettings);
 	}
 
+	public function setAppNamespace(string $namespace):void {
+		foreach($this->queryCollectionFactoryArray as $factory) {
+			$factory->setAppNamespace($namespace);
+		}
+	}
+
 	public function insert(string $queryName, ...$bindings):int {
 		$result = $this->query($queryName, $bindings);
 

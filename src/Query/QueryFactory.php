@@ -46,13 +46,17 @@ class QueryFactory {
 		throw new QueryNotFoundException($this->directoryOfQueries . ", " . $name);
 	}
 
-	public function create(string $name):Query {
+	public function create(string $name, string $appNamespace = null):Query {
 		$query = null;
 
 		try {
 			$queryFilePath = $this->findQueryFilePath($name);
 			$queryClass = $this->getQueryClassForFilePath($queryFilePath);
-			$query = new $queryClass($queryFilePath, $this->driver);
+			$query = new $queryClass(
+				$queryFilePath,
+				$this->driver,
+				$appNamespace
+			);
 		}
 		catch(InvalidArgumentException $exception) {
 			$this->throwCorrectException($exception);

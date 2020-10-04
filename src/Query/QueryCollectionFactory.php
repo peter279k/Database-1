@@ -12,10 +12,16 @@ class QueryCollectionFactory {
 	protected $basePath;
 	/** @var array */
 	protected $queryCollectionCache = [];
+	private ?string $appNamespace;
 
 	public function __construct(Driver $driver) {
 		$this->driver = $driver;
 		$this->basePath = $this->driver->getBaseDirectory();
+		$this->appNamespace = null;
+	}
+
+	public function setAppNamespace(string $namespace):void {
+		$this->appNamespace = $namespace;
 	}
 
 	public function create(string $name):QueryCollection {
@@ -29,6 +35,9 @@ class QueryCollectionFactory {
 			$this->queryCollectionCache[$name] = new QueryCollection(
 				$directoryPath,
 				$this->driver
+			);
+			$this->queryCollectionCache[$name]->setAppNamespace(
+				$this->appNamespace
 			);
 		}
 

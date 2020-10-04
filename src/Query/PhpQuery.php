@@ -1,29 +1,52 @@
 <?php
 namespace Gt\Database\Query;
 
+use Gt\Database\Connection\Driver;
 use Gt\Database\Result\ResultSet;
 
 class PhpQuery extends SqlQuery {
-	private string $namespace = "App";
-
-	public function setBaseNamespace(string $namespace):void {
-		$this->namespace = $namespace;
+	public function getSql(array $bindings = []):string {
+		$className = $this->getClassName();
+		$object = new $className;
+		return (string)($object);
 	}
 
-	public function getSql(array $bindings = []):string {
-		require_once($this->getFilePath());
+	private function getClassName():string {
+		$path = $this->getFilePath();
+
 		$classBaseName = ucfirst(
 			pathinfo(
-				$this->getFilePath(),
+				$path,
 				PATHINFO_FILENAME
 			)
 		);
-		$className = "\\" . $this->namespace . "\\Database\\$classBaseName";
+
+		$namespace = "\\" . $this->appNamespace . "\\Database";
+
+		$namespaceDirectoryPath = substr(
+			$path,
+			strlen($this->basePath) + 1
+		);
+		// Remove the base "query" directory:
+		$namespaceDirectoryPath = substr(
+			$namespaceDirectoryPath,
+			strpos($namespaceDirectoryPath, "/") + 1
+		);
+		$namespaceDirectoryPath = substr(
+			$namespaceDirectoryPath,
+			0,
+			strrpos($namespaceDirectoryPath, "/")
+		);
+		foreach(explode("/", $namespaceDirectoryPath) as $namespacePart) {
+			$namespace .= "\\" . ucfirst($namespacePart);
+		}
+
+		$className = "$namespace\\$classBaseName";
+
 		if(!class_exists($className)) {
 			throw new PhpQueryClassNotLoadedException($className);
 		}
 
-		$object = new $className();
-		return (string)($object);
+		return $className;
 	}
 }

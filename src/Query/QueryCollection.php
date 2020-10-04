@@ -13,6 +13,7 @@ class QueryCollection {
 	protected $directoryPath;
 	/** @var QueryFactory */
 	protected $queryFactory;
+	private ?string $appNamespace;
 
 	public function __construct(
 		string $directoryPath,
@@ -28,6 +29,7 @@ class QueryCollection {
 
 		$this->directoryPath = $directoryPath;
 		$this->queryFactory = $queryFactory;
+		$this->appNamespace = null;
 	}
 
 	public function __call($name, $args) {
@@ -45,7 +47,7 @@ class QueryCollection {
 		string $name,
 		...$placeholderMap
 	):ResultSet {
-		$query = $this->queryFactory->create($name);
+		$query = $this->queryFactory->create($name, $this->appNamespace);
 		return $query->execute($placeholderMap);
 	}
 
@@ -58,26 +60,6 @@ class QueryCollection {
 			...$placeholderMap
 		)->lastInsertId();
 	}
-
-//	public function fetch(
-//		string $name,
-//		...$placeholderMap
-//	):?Row {
-//		return $this->query(
-//			$name,
-//			...$placeholderMap
-//		)->current();
-//	}
-//
-//	public function fetchAll(
-//		string $name,
-//		...$placeholderMap
-//	):ResultSet {
-//		return $this->query(
-//			$name,
-//			...$placeholderMap
-//		);
-//	}
 
 	public function update(
 		string $name,
@@ -101,5 +83,9 @@ class QueryCollection {
 
 	public function getDirectoryPath():string {
 		return $this->directoryPath;
+	}
+
+	public function setAppNamespace(?string $appNamespace):void {
+		$this->appNamespace = $appNamespace;
 	}
 }

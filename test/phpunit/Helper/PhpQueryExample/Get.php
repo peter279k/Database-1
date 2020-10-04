@@ -1,7 +1,7 @@
 <?php /** @noinspection PhpIllegalPsrClassPathInspection */
 namespace App\Database;
 
-class GetByName extends \Gt\SqlBuilder\Query\SelectQuery {
+class Get extends \Gt\SqlBuilder\Query\SelectQuery {
 	public function select():array {
 		return [
 			"id",
@@ -13,15 +13,5 @@ class GetByName extends \Gt\SqlBuilder\Query\SelectQuery {
 		return [
 			"test_table",
 		];
-	}
-
-	public function where():array {
-		return [
-			"name = ?",
-		];
-	}
-
-	public function limit():array {
-		return [1];
 	}
 }

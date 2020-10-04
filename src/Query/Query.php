@@ -1,21 +1,29 @@
 <?php
 namespace Gt\Database\Query;
 
+use Gt\Database\Connection\Connection;
 use Gt\Database\Connection\Driver;
 use Gt\Database\Result\ResultSet;
 
 abstract class Query {
-	/** @var string Absolute path to query file on disk */
-	protected $filePath;
-	protected $connection;
+	protected string $filePath;
+	protected Connection $connection;
+	protected string $basePath;
+	protected ?string $appNamespace;
 
-	public function __construct(string $filePath, Driver $driver) {
+	public function __construct(
+		string $filePath,
+		Driver $driver,
+		string $appNamespace = null
+	) {
 		if(!is_file($filePath)) {
 			throw new QueryNotFoundException($filePath);
 		}
 
 		$this->filePath = $filePath;
 		$this->connection = $driver->getConnection();
+		$this->basePath = $driver->getBaseDirectory();
+		$this->appNamespace = $appNamespace;
 	}
 
 	public function getFilePath():string {

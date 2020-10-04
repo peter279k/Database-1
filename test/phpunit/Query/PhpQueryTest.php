@@ -35,7 +35,7 @@ class PhpQueryTest extends TestCase {
 		string $queryPath
 	) {
 		self::expectException(QueryNotFoundException::class);
-		new PhpQuery($queryPath, $this->driverSingleton());
+		new PhpQuery($queryPath, $this->driverSingleton(), "App");
 	}
 
 	/** @dataProvider \Gt\Database\Test\Helper\Helper::queryPathPhpExistsProvider */
@@ -44,42 +44,46 @@ class PhpQueryTest extends TestCase {
 		string $queryCollectionPath,
 		string $queryPath
 	) {
-		$query = new PhpQuery($queryPath, $this->driverSingleton());
+		$query = new PhpQuery($queryPath, $this->driverSingleton(), "App");
 		static::assertFileExists($query->getFilePath());
 	}
 
 	/**
 	 * @dataProvider \Gt\Database\Test\Helper\Helper::queryPathPhpExistsProvider
-	 *@runInSeparateProcess
 	 */
 	public function testBadPhpNamespace(
 		string $queryName,
 		string $queryCollectionPath,
 		string $queryPath
 	) {
-		$php = <<<PHP
-<?php
-namespace Somewhere\Database;
-
-class ThisIsWrong {}
-PHP;
-		file_put_contents($queryPath, $php);
-		$query = new PhpQuery($queryPath, $this->driverSingleton());
+		$query = new PhpQuery($queryPath, $this->driverSingleton(), "App");
 		self::expectException(PhpQueryClassNotLoadedException::class);
 		$query->getSql(["two"]);
 	}
 
 	/**
 	 * @dataProvider \Gt\Database\Test\Helper\Helper::queryCollectionPathExistsProvider
-	 * @runInSeparateProcess
 	 */
 	public function testSqlGenerated(
 		string $queryName,
 		string $queryCollectionPath
 	) {
+		$queryCollection = substr(
+			$queryCollectionPath,
+			strrpos($queryCollectionPath, "/") + 1
+		);
+
 		$queryPath = "$queryCollectionPath/getByName.php";
-		copy(__DIR__ . "/../Helper/PhpQueryExample/GetByName.php", $queryPath);
-		$query = new PhpQuery($queryPath, $this->driverSingleton());
+		$php = file_get_contents(__DIR__ . "/../Helper/PhpQueryExample/GetByName.php");
+		$php = str_replace(
+			"namespace App\\Database",
+			"namespace App\\Database\\$queryCollection",
+			$php
+		);
+
+		file_put_contents($queryPath, $php);
+		require_once($queryPath);
+		$query = new PhpQuery($queryPath, $this->driverSingleton(), "App");
 		$sql = $query->getSql(["two"]);
 
 		self::assertStringContainsStringIgnoreWhitespace(
@@ -90,47 +94,96 @@ PHP;
 
 	/**
 	 * @dataProvider \Gt\Database\Test\Helper\Helper::queryCollectionPathExistsProvider
-	 * @runInSeparateProcess
 	 */
 	public function testNamespaceMismatch(
 		string $queryName,
 		string $queryCollectionPath
 	) {
+		$queryCollection = substr(
+			$queryCollectionPath,
+			strrpos($queryCollectionPath, "/") + 1
+		);
 		$queryPath = "$queryCollectionPath/getByName.php";
 		$php = file_get_contents(__DIR__ . "/../Helper/PhpQueryExample/GetByName.php");
 		$php = str_replace(
 			"namespace App\\Database",
-			"namespace MyTestApp\\Database",
+			"namespace MyTestApp\\Database\\$queryCollection",
 			$php
 		);
 		file_put_contents($queryPath, $php);
-		$query = new PhpQuery($queryPath, $this->driverSingleton());
+		require_once($queryPath);
+		$query = new PhpQuery($queryPath, $this->driverSingleton(), "App");
 		self::expectException(PhpQueryClassNotLoadedException::class);
 		$query->getSql(["two"]);
 	}
 
 	/**
 	 * @dataProvider \Gt\Database\Test\Helper\Helper::queryCollectionPathExistsProvider
-	 * @runInSeparateProcess
 	 */
 	public function testSetBaseNamespace(
 		string $queryName,
 		string $queryCollectionPath
 	) {
+		$queryCollection = substr(
+			$queryCollectionPath,
+			strrpos($queryCollectionPath, "/") + 1
+		);
 		$queryPath = "$queryCollectionPath/getByName.php";
 		$php = file_get_contents(__DIR__ . "/../Helper/PhpQueryExample/GetByName.php");
 		$php = str_replace(
 			"namespace App\\Database",
-			"namespace MyTestApp\\Database",
+			"namespace MyTestApp\\Database\\$queryCollection",
 			$php
 		);
 		file_put_contents($queryPath, $php);
-		$query = new PhpQuery($queryPath, $this->driverSingleton());
-		$query->setBaseNamespace("MyTestApp");
+		require_once($queryPath);
+		$query = new PhpQuery($queryPath, $this->driverSingleton(), "MyTestApp");
 		$sql = $query->getSql(["two"]);
 
 		self::assertStringContainsStringIgnoreWhitespace(
 			"select id, name from test_table where name = ? limit 1",
+			$sql
+		);
+	}
+
+	/**
+	 * @dataProvider \Gt\Database\Test\Helper\Helper::queryCollectionPathExistsProvider
+	 */
+	public function testExtendedClass(
+		string $queryName,
+		string $queryCollectionPath
+	) {
+		$queryCollection = substr(
+			$queryCollectionPath,
+			strrpos($queryCollectionPath, "/") + 1
+		);
+		$baseQueryPath = "$queryCollectionPath/get.php";
+		$phpGet = file_get_contents(__DIR__ . "/../Helper/PhpQueryExample/Get.php");
+		$extendedQueryPath = "$queryCollectionPath/getLatest.php";
+		$phpGetLatest = file_get_contents(__DIR__ . "/../Helper/PhpQueryExample/GetLatest.php");
+
+		$phpGet = str_replace(
+			"namespace App\\Database",
+			"namespace App\\Database\\$queryCollection",
+			$phpGet
+		);
+		$phpGetLatest = str_replace(
+			"namespace App\\Database",
+			"namespace App\\Database\\$queryCollection",
+			$phpGetLatest
+		);
+
+		file_put_contents($baseQueryPath, $phpGet);
+		file_put_contents($extendedQueryPath, $phpGetLatest);
+
+		require_once($baseQueryPath);
+		require_once($extendedQueryPath);
+
+		$query = new PhpQuery($extendedQueryPath, $this->driverSingleton(), "App");
+		$sql = $query->getSql();
+
+		self::assertStringContainsStringIgnoreWhitespace(
+			"select id, name from test_table order by timestamp desc limit 1",
 			$sql
 		);
 	}

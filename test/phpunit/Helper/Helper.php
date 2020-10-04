@@ -148,7 +148,7 @@ class Helper {
 			$nameParts = [];
 
 			for($n = 0; $n < $nested; $n++) {
-				$nameParts []= uniqid();
+				$nameParts []= uniqid("queryCollection");
 			}
 
 			$name = implode(DIRECTORY_SEPARATOR, $nameParts);
