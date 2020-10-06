@@ -25,6 +25,9 @@ class PhpQueryAutoloader {
 		}
 
 		$path = "$path.php";
+		if($path[0] !== "/") {
+			$path = getcwd() . "/$path";
+		}
 		$path = $this->fixPath($path);
 
 		/** @noinspection PhpIncludeInspection */
