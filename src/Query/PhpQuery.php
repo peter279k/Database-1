@@ -25,12 +25,11 @@ class PhpQuery extends SqlQuery {
 
 		$namespaceDirectoryPath = substr(
 			$path,
-			strlen($this->basePath) + 1
+			strrpos($path, $this->basePath)
 		);
-		// Remove the base "query" directory:
 		$namespaceDirectoryPath = substr(
 			$namespaceDirectoryPath,
-			strpos($namespaceDirectoryPath, "/") + 1
+			strlen($this->basePath) + 1
 		);
 		$namespaceDirectoryPath = substr(
 			$namespaceDirectoryPath,
