@@ -34,9 +34,9 @@ class QueryFactory {
 				continue;
 			}
 
-			$this->getExtensionIfValid($fileInfo);
+			$ext = $this->getExtensionIfValid($fileInfo);
 			$fileNameNoExtension = strtok($fileInfo->getFilename(), ".");
-			if($fileNameNoExtension !== $name) {
+			if(strtolower($fileNameNoExtension) !== strtolower($name)) {
 				continue;
 			}
 
@@ -52,6 +52,7 @@ class QueryFactory {
 		try {
 			$queryFilePath = $this->findQueryFilePath($name);
 			$queryClass = $this->getQueryClassForFilePath($queryFilePath);
+
 			$query = new $queryClass(
 				$queryFilePath,
 				$this->driver,
@@ -72,7 +73,7 @@ class QueryFactory {
 		return self::CLASS_FOR_EXTENSION[$ext];
 	}
 
-	protected function getExtensionIfValid(SplFileInfo $fileInfo) {
+	protected function getExtensionIfValid(SplFileInfo $fileInfo):string {
 		$ext = strtolower($fileInfo->getExtension());
 
 		if(!array_key_exists($ext, self::CLASS_FOR_EXTENSION)) {
